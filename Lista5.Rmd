@@ -17,12 +17,64 @@ library(janitor)
 library(infer)
 ```
 
-## Importando o conjunto de dados
+## 1. Importando o conjunto de dados
 
 Trazendo os dados para dentro do R
 ```{r importando, echo=TRUE}
 ESEB2018 <- foreign::read.spss("ESEB2018.sav", to.data.frame = T)
 ```
 
+## 2. Manipulando os dados
+
+Modificando a variável sobre identificação partidária (não sabe ou não respondeu = "não").
+```{r, echo=TRUE}
+t.pid <- ESEB2018 %>%
+  mutate(partyid = as.factor(case_when(
+    Q22A == "Sim" ~ "Sim",
+    Q22A == "Não" ~ "Não",
+    Q22A == "Não sabe (Esp.)" ~ "Não",
+    Q22A == "Não respondeu (Esp.)" ~ "Não"
+  ))
+  )
+```
 
 
+## 3. Hipóteses
+
+H~0~: independência (não existe associação entre sexo e identificação partidária)
+
+H~1~: há dependência (existe associação entre sexo e identificação partidária)
+
+## 4. Tabela de contingência
+
+```{r}
+t.pid %>%
+  tabyl(D2_SEXO, partyid) %>%
+  adorn_percentages("col") %>%
+  adorn_pct_formatting()
+```
+
+## 5. Tabela de valores esperados
+
+Esta é uma tabela com valores esperados para identificação partidária e sexo (assumindo que H~0~ é verdadeira).
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrr}
+  \hline
+ & sexo\_partyid & Sim & Não \\ 
+  \hline
+1 & Masculino & 188.49 & 1001.38 \\ 
+  2 & Feminino & 208.45 & 1107.41 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+## 6. Teste qui-quadrado
+
+```{r, echo=TRUE}
+t.pid %>%
+  infer::chisq_test(D2_SEXO ~ partyid)
+```
+
+p-valor abaixo de 0,01.
+Necessário fazer os gráficos da distribuição normal. 

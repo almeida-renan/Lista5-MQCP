@@ -22,6 +22,7 @@ t.pid <- ESEB2018 %>%
 t.pid %>%
   infer::chisq_test(D2_SEXO ~ partyid)
 
+# Gráficos
 pidqui_quadrado <- t.pid %>% 
   specify(explanatory = D2_SEXO, response =  partyid, success = "Sim") %>%
   calculate(stat = "Chisq", order = c("Masculino", "Feminino"))
@@ -41,3 +42,13 @@ tabelacruzada <- t.pid %>%
   tabyl(D2_SEXO, partyid) %>%
   adorn_percentages("col") %>%
   adorn_pct_formatting()
+
+## Tabela esperada ----
+
+esperada <- tribble(
+  ~sexo_partyid, ~Sim, ~Não,
+  "Masculino",  188.49, 1001.38,
+  "Feminino",   208.45, 1107.41
+)
+
+xtable::xtable(esperada)
