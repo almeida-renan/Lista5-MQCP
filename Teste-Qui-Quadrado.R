@@ -1,6 +1,10 @@
-## Carregando ESEB ----
+## Carregando ESEB e pacotes ----
 
 ESEB2018 <- foreign::read.spss("ESEB2018.sav", to.data.frame = T)
+
+library(tidyverse)
+library(janitor)
+library(infer)
 
 ## Manipulando variável sobre identificação partidária ----
 
@@ -16,22 +20,24 @@ t.pid <- ESEB2018 %>%
 ## Teste Qui Quadrado ----
 
 t.pid %>%
-  tabyl(D1A_FAIXAID, partyid) %>%
-  adorn_percentages("col") %>%
-  adorn_pct_formatting()
-
-t.pid %>%
-  infer::chisq_test(D1A_FAIXAID ~ partyid)
+  infer::chisq_test(D2_SEXO ~ partyid)
 
 pidqui_quadrado <- t.pid %>% 
-  specify(explanatory = D1A_FAIXAID, response =  partyid, success = "Sim") %>%
-  calculate(stat = "Chisq")
+  specify(explanatory = D2_SEXO, response =  partyid, success = "Sim") %>%
+  calculate(stat = "Chisq", order = c("Masculino", "Feminino"))
 
 pidteorica_qui_quadrado <- t.pid %>% 
-  specify(explanatory = D1A_FAIXAID, response =  partyid, success = "Sim") %>%
+  specify(explanatory = D2_SEXO, response =  partyid, success = "Sim") %>%
   hypothesize(null = "independence") 
 
 pidteorica_qui_quadrado %>%
   visualize(method = "theoretical") + 
-  shade_p_value(brinksqui_quadrado,
+  shade_p_value(pidqui_quadrado,
                 direction = "greater")
+
+## Tabela cruzada ----
+
+tabelacruzada <- t.pid %>%
+  tabyl(D2_SEXO, partyid) %>%
+  adorn_percentages("col") %>%
+  adorn_pct_formatting()

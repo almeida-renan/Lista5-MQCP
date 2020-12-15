@@ -1,0 +1,28 @@
+---
+title: "Lista 4"
+subtitle: "Métodos Quantitativos Aplicados à Ciência Política"
+author: |
+  | Erlene Avelino 
+  | Louise Almeida da Silva
+  | Pedro Luz de Castro
+  | Renan Almeida
+date: "16/12/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(janitor)
+library(infer)
+```
+
+## Importando o conjunto de dados
+
+Trazendo os dados para dentro do R
+```{r importando, echo=TRUE}
+ESEB2018 <- foreign::read.spss("ESEB2018.sav", to.data.frame = T)
+```
+
+
+
