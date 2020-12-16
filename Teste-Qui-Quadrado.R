@@ -41,10 +41,10 @@ pidteorica_qui_quadrado %>%
 tabelacruzada <- t.pid %>%
   tabyl(D2_SEXO, partyid) %>%
   adorn_percentages("col") %>%
-  adorn_pct_formatting()
-
-tabelacont <- tabelacruzada %>%
+  adorn_pct_formatting() %>%
   rename("Sexo/PartyID" = D2_SEXO)
+
+tabelacont <- tabelacruzada[c(1,3,2)]
 
 xtable::xtable(tabelacont)
 
