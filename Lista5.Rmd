@@ -19,14 +19,18 @@ library(infer)
 
 ## 1. Importando o conjunto de dados
 
-Trazendo os dados para dentro do R
+Vamos trabalhar com os dados do Estudo Eleitoral Brasileiro (ESEB), um *survey* pós-eleitoral realizado desde 2002 pelo Centro de Estudos de Opinião Pública (CESOP) da Universidade Estadual de Campinas. Mais especificamente, vamos trabalhar com os dados da onda de 2018 dessa pesquisa.
+
+Como sempre, o primeiro passo é trazer esse conjunto de dados para o ambiente do R.
+
 ```{r importando, echo=TRUE}
 ESEB2018 <- foreign::read.spss("ESEB2018.sav", to.data.frame = T)
 ```
 
-## 2. Manipulando os dados
+## 2. Explicação do teste a ser realizado
 
-Modificando a variável sobre identificação partidária (não sabe ou não respondeu = "não").
+Pretendemos testar se a propensão a manifestar partidarismo está ou não associada ao sexo do entrevistado. Para isso, utilizaremos a questão Q22A do ESEB 2018, que indaga se o respondente "se considera próximo a algum partido político", admitindo as respostas "sim" ou "não". Atribuímos um valor conservador às não-respostas. Assim, os eleitores que responderam "não sei" ou deixaram de responder à questão foram classificados como não próximos a partidos.
+
 ```{r, echo=TRUE}
 t.pid <- ESEB2018 %>%
   mutate(partyid = as.factor(case_when(
@@ -38,43 +42,62 @@ t.pid <- ESEB2018 %>%
   )
 ```
 
+Como se trata de duas variáveis nominais, utilizaremos o teste Qui-Quadrado (x^2).
 
-## 3. Hipóteses
+## 3. Tabela de contingência
 
-H~0~: independência (não existe associação entre sexo e identificação partidária)
+Observando uma tabela de contingência que cruza as duas variáveis de interesse (sexo e identificação partidária), podemos sugerir que os homens são mais propensos a manifestar partidarismo do que as mulheres. Contudo, será que as diferenças observadas entre essas proporções são mesmo estatisticamente significativas?
 
-H~1~: há dependência (existe associação entre sexo e identificação partidária)
-
-## 4. Tabela de contingência
-
-```{r}
-t.pid %>%
+```{r tabelacont, echo=TRUE}
+# Construindo a tabela
+tabelacruzada <- t.pid %>%
   tabyl(D2_SEXO, partyid) %>%
   adorn_percentages("col") %>%
-  adorn_pct_formatting()
+  adorn_pct_formatting() %>%
+  rename("Sexo/PartyID" = D2_SEXO)
+
+# Reordenando as colunas
+tabelacont <- tabelacruzada[c(1,3,2)]
+
+knitr::kable(tabelacont)
 ```
 
-## 5. Tabela de valores esperados
 
-Esta é uma tabela com valores esperados para identificação partidária e sexo (assumindo que H~0~ é verdadeira).
-\begin{table}[ht]
-\centering
-\begin{tabular}{rlrr}
-  \hline
- & sexo\_partyid & Sim & Não \\ 
-  \hline
-1 & Masculino & 188.49 & 1001.38 \\ 
-  2 & Feminino & 208.45 & 1107.41 \\ 
-   \hline
-\end{tabular}
-\end{table}
+## 4. Hipóteses
 
-## 6. Teste qui-quadrado
+Formalizando as hipóteses do teste Qui-Quadrado (x^2):
+
+Hipótese nula (*H~0~*): As distribuições das variáveis são independentes, isto é, não existe associação entre sexo e identificação partidária;
+
+Hipótese alternativa (*H~1~*): Há dependência entre as distribuições das variáveis, isto é, existe associação entre sexo e identificação partidária.
+
+## 5. Teste Qui-Quadrado (x^2)
+
+Para a realização do teste Qui-Quadrado, utilizamos o pacote "infer".
 
 ```{r, echo=TRUE}
-t.pid %>%
-  infer::chisq_test(D2_SEXO ~ partyid)
+knitr::kable(t.pid %>%
+  infer::chisq_test(D2_SEXO ~ partyid))
 ```
 
 p-valor abaixo de 0,01.
-Necessário fazer os gráficos da distribuição normal. 
+Podemos rejeitar a hipótese nula. 
+
+## 6. Gráficos
+Gráficos da distribuição normal. 
+
+```{r}
+pidqui_quadrado <- t.pid %>% 
+  specify(explanatory = D2_SEXO, response =  partyid, success = "Sim") %>%
+  calculate(stat = "Chisq", order = c("Masculino", "Feminino"))
+
+pidteorica_qui_quadrado <- t.pid %>% 
+  specify(explanatory = D2_SEXO, response =  partyid, success = "Sim") %>%
+  hypothesize(null = "independence") 
+
+pidteorica_qui_quadrado %>%
+  visualize(method = "theoretical") + 
+  shade_p_value(pidqui_quadrado,
+                direction = "greater")
+```
+

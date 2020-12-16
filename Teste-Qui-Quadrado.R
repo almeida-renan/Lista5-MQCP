@@ -43,6 +43,11 @@ tabelacruzada <- t.pid %>%
   adorn_percentages("col") %>%
   adorn_pct_formatting()
 
+tabelacont <- tabelacruzada %>%
+  rename("Sexo/PartyID" = D2_SEXO)
+
+xtable::xtable(tabelacont)
+
 ## Tabela esperada ----
 
 esperada <- tribble(
