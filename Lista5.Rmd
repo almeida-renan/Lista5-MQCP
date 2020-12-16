@@ -20,7 +20,6 @@ library(infer)
 ## 1. Importando o conjunto de dados
 
 Vamos trabalhar com os dados do Estudo Eleitoral Brasileiro (ESEB), um *survey* pós-eleitoral realizado desde 2002 pelo Centro de Estudos de Opinião Pública (CESOP) da Universidade Estadual de Campinas. Mais especificamente, vamos trabalhar com os dados da onda de 2018 dessa pesquisa.
-
 Como sempre, o primeiro passo é trazer esse conjunto de dados para o ambiente do R.
 
 ```{r importando, echo=TRUE}
@@ -42,11 +41,13 @@ t.pid <- ESEB2018 %>%
   )
 ```
 
-Como se trata de duas variáveis nominais, utilizaremos o teste Qui-Quadrado (x^2).
+Vamos olhar as relações entre o gênero dos eleitores e a identificação partidária.
+Como se trata de duas variáveis nominais, utilizaremos o teste Qui-Quadrado (x^2). Esse teste identifica se existe dependência entre as variáveis qualitativas, ou seja, se elas estão relacionadas ou não.
+
 
 ## 3. Tabela de contingência
 
-Observando uma tabela de contingência que cruza as duas variáveis de interesse (sexo e identificação partidária), podemos sugerir que os homens são mais propensos a manifestar partidarismo do que as mulheres. Contudo, será que as diferenças observadas entre essas proporções são mesmo estatisticamente significativas?
+Observando uma tabela de contingência que cruza as frequências das duas variáveis de interesse (sexo e identificação partidária), podemos sugerir que os homens são mais propensos a manifestar partidarismo do que as mulheres. Contudo, será que as diferenças observadas entre essas proporções são mesmo estatisticamente significativas?
 
 ```{r tabelacont, echo=TRUE}
 # Construindo a tabela
@@ -65,7 +66,7 @@ knitr::kable(tabelacont)
 
 ## 4. Hipóteses
 
-Formalizando as hipóteses do teste Qui-Quadrado (x^2):
+- Testamos duas hipóteses concorrentes: 
 
 Hipótese nula (*H~0~*): As distribuições das proporções das variáveis são independentes, isto é, não existe associação entre sexo e identificação partidária;
 
@@ -80,11 +81,10 @@ knitr::kable(t.pid %>%
   infer::chisq_test(D2_SEXO ~ partyid))
 ```
 
-p-valor abaixo de 0,01.
-Podemos rejeitar a hipótese nula. 
+Portanto, considerando um nível de significância de 1%, encontrarmos um p-valor menor que 0,01. Assim, podemos rejeitar a hipótese nula e considerar que as variáveis possuem alguma relação, não sendo independentes. 
 
 ## 6. Gráficos
-Gráficos da distribuição normal. 
+Também podemos observar graficamente o teste. Nesse caso, quanto menor for o p-valor, mais "distante" estamos da hipótese nula. 
 
 ```{r}
 pidqui_quadrado <- t.pid %>% 
