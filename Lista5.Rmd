@@ -67,9 +67,9 @@ knitr::kable(tabelacont)
 
 Formalizando as hipóteses do teste Qui-Quadrado (x^2):
 
-Hipótese nula (*H~0~*): As distribuições das variáveis são independentes, isto é, não existe associação entre sexo e identificação partidária;
+Hipótese nula (*H~0~*): As distribuições das proporções das variáveis são independentes, isto é, não existe associação entre sexo e identificação partidária;
 
-Hipótese alternativa (*H~1~*): Há dependência entre as distribuições das variáveis, isto é, existe associação entre sexo e identificação partidária.
+Hipótese alternativa (*H~1~*): Há dependência entre as distribuições das proporções das variáveis, isto é, existe associação entre sexo e identificação partidária.
 
 ## 5. Teste Qui-Quadrado (x^2)
 
