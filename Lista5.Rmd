@@ -30,7 +30,7 @@ ESEB2018 <- foreign::read.spss("ESEB2018.sav", to.data.frame = T)
 
 Pretendemos testar se a propensão a manifestar partidarismo está ou não associada ao sexo do entrevistado. Para isso, utilizaremos a questão Q22A do ESEB 2018, que indaga se o respondente "se considera próximo a algum partido político", admitindo as respostas "sim" ou "não". Atribuímos um valor conservador às não-respostas. Assim, os eleitores que responderam "não sei" ou deixaram de responder à questão foram classificados como não próximos a partidos.
 
-```{r, echo=TRUE}
+```{r manipulando, echo=TRUE}
 t.pid <- ESEB2018 %>%
   mutate(partyid = as.factor(case_when(
     Q22A == "Sim" ~ "Sim",
@@ -41,8 +41,8 @@ t.pid <- ESEB2018 %>%
   )
 ```
 
-Vamos olhar as relações entre o gênero dos eleitores e a identificação partidária.
-Como se trata de duas variáveis nominais, utilizaremos o teste Qui-Quadrado (x^2). Esse teste identifica se existe dependência entre as variáveis qualitativas, ou seja, se elas estão relacionadas ou não.
+Em outras palavras, vamos olhar as relações entre o sexo dos eleitores e a identificação partidária.
+Como se trata de duas variáveis nominais, utilizaremos o teste Qui-Quadrado (*x^2^*). Esse teste identifica se existe dependência entre as variáveis qualitativas, ou seja, se elas estão relacionadas ou não.
 
 
 ## 3. Tabela de contingência
@@ -60,7 +60,7 @@ tabelacruzada <- t.pid %>%
 # Reordenando as colunas
 tabelacont <- tabelacruzada[c(1,3,2)]
 
-knitr::kable(tabelacont)
+knitr::kable(tabelacont, caption = "Tabela de contingência (Sexo x Identificação Partidária)")
 ```
 
 
@@ -72,21 +72,21 @@ Hipótese nula (*H~0~*): As distribuições das proporções das variáveis são
 
 Hipótese alternativa (*H~1~*): Há dependência entre as distribuições das proporções das variáveis, isto é, existe associação entre sexo e identificação partidária.
 
-## 5. Teste Qui-Quadrado (x^2)
+## 5. Teste Qui-Quadrado (*x^2^*)
 
 Para a realização do teste Qui-Quadrado, utilizamos o pacote "infer".
 
-```{r, echo=TRUE}
+```{r resultados, echo=TRUE}
 knitr::kable(t.pid %>%
-  infer::chisq_test(D2_SEXO ~ partyid))
+  infer::chisq_test(D2_SEXO ~ partyid), caption = "Resultados do teste Qui-Quadrado")
 ```
 
-Portanto, considerando um nível de significância de 1%, encontrarmos um p-valor menor que 0,01. Assim, podemos rejeitar a hipótese nula e considerar que as variáveis possuem alguma relação, não sendo independentes. 
+Portanto, considerando um grau de liberdade, encontramos um p-valor menor que 0,01, evidenciando um nível de significância, isto é, uma probabilidade de rejeitar a hipótese nula sendo ela verdadeira (incorrer em Erro do Tipo I), inferior a 1%. Assim, podemos rejeitar a hipótese nula e considerar que as variáveis possuem alguma relação, não sendo independentes. 
 
-## 6. Gráficos
-Também podemos observar graficamente o teste. Nesse caso, quanto menor for o p-valor, mais "distante" estamos da hipótese nula. 
+## 6. Gráfico
+Também podemos observar graficamente o teste. Nesse caso, quanto menor for o p-valor, mais "distante" estamos da hipótese nula. Podemos ver, pela linha vertical vermelha, que este é o caso.  
 
-```{r}
+```{r gráfico, echo=TRUE}
 pidqui_quadrado <- t.pid %>% 
   specify(explanatory = D2_SEXO, response =  partyid, success = "Sim") %>%
   calculate(stat = "Chisq", order = c("Masculino", "Feminino"))
